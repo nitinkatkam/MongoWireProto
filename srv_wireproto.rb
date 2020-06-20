@@ -1,6 +1,7 @@
 require 'socket'
 require 'bindata'
 require 'bson'
+require './msg_header'
 
 def read_to_char(stream, delim)
   buf = nil
@@ -17,21 +18,29 @@ def read_to_char(stream, delim)
   buf
 end
 
-s = TCPServer.open(27117)
+def fetch_uint32(stream)
+  stream.recv(4).unpack('V').first
+end
+
+s = TCPServer.open(27027)
 c = s.accept
 
-msg_len = ((c.recv 4).unpack 'V').first
-request_id = ((c.recv 4).unpack 'V').first
-response_to = ((c.recv 4).unpack 'V').first
-op_code = ((c.recv 4).unpack 'V').first
-flags = ((c.recv 4).unpack 'V').first
-#coll_name = c.gets("\0").chomp("\0")
-coll_name = (read_to_char c, "\0").chomp("\0")
-num_skip = ((c.recv 4).unpack 'V').first
-num_return = ((c.recv 4).unpack 'V').first
+req_std_header = StandardMessageHeader.new
+
+#TODO Make StandardMessageHeader capable of fetching these
+req_std_header.message_length = fetch_uint32(c)
+req_std_header.request_id = fetch_uint32(c)
+req_std_header.response_to = fetch_uint32(c)
+req_std_header.op_code = fetch_uint32(c)
+
+flags = fetch_uint32(c)
+#coll_name = c.gets("\0").chomp("\0") #Cannot mix recv and gets
+coll_name = read_to_char(c, "\0").chomp("\0")
+num_skip = fetch_uint32(c)
+num_return = fetch_uint32(c)
 read_so_far = 28 + coll_name.length + 1
 
-remaining_len = msg_len - read_so_far
+remaining_len = req_std_header.message_length - read_so_far
 remaining_data = c.recv remaining_len
 
 bson_len = ((remaining_data.slice 0, 4).unpack 'V').first
