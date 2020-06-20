@@ -11,5 +11,5 @@ class QueryMessage < BaseMessage
     @field_selector = field_selector
 
   end
-  attr_accessor :flags, :collection_name, :num_skip, :num_return, :query_doc, :field_selector
+  attr_accessor :flags, :collection_name, :num_skip, :num_return, :query_doc, :field_selector, :query_doc_buffer
 end

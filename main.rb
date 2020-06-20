@@ -6,16 +6,18 @@ require './msg_query'
 require './msg_reply'
 require './util_bstream_reader'
 require './msg_parser'
+require './server'
+require './client'
 
-counter_request_id = 500
 
-s = TCPServer.open(27027)
-c = s.accept
-
-req_msg = MessageParser.parse(c)
-p req_msg
-
-c.close
-s.close
+for arg in ARGV
+    if arg == 'server'
+        s = Server.new
+        s.start
+    elsif arg == 'client'
+        c = Client.new
+        c.start
+    end        
+end
 
 #require 'debug'

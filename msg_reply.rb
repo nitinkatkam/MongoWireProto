@@ -10,5 +10,5 @@ class ReplyMessage < BaseMessage
     @reply_doc = reply_doc
   end
 
-  attr_accessor :flags, :cursor_id, :start_from, :num_return, :reply_doc
+  attr_accessor :flags, :cursor_id, :start_from, :num_return, :reply_doc, :reply_doc_buffer
 end
