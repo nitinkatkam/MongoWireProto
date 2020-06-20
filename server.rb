@@ -73,3 +73,8 @@ end
 ###
 # Raw: {"length":300,"requestId":0,"responseTo":0,"opCode":2004,"flags":0,"fullCollectionName":"admin.$cmd","numberToSkip":0,"numberToReturn":1,"query":{"isMaster":1,"hostInfo":"Nitins-MBP:27017","client":{"application":{"name":"MongoDB Shell"},"driver":{"name":"MongoDB Internal Client","version":"4.2.2"},"os":{"type":"Darwin","name":"Mac OS X","architecture":"x86_64","version":"19.5.0"}}}}
 ###
+# Raw: {"length":60,"requestId":1,"responseTo":0,"opCode":2004,"flags":0,"fullCollectionName":"admin.$cmd","numberToSkip":0,"numberToReturn":1,"query":{"whatsmyuri":1}}
+###
+# #<QueryMessage:0x00007f9e409335b0 @header=#<StandardMessageHeader:0x00007f9e40933e20 @message_length=63, @request_id=2, @response_to=0, @op_code=2004, @placeholder=nil>, @flags=0, @collection_name="admin.$cmd", @num_skip=0, @num_return=1,
+# @query_doc={"buildinfo"=>1.0}, @field_selector=nil>
+###
