@@ -50,18 +50,15 @@ class Client
         query_msg.query_doc = doc
     
         query_msg.query_doc_buffer = query_msg.query_doc.to_bson
-        std_header.message_length = query_msg.query_doc_buffer.length + 4 + 4
+        std_header.message_length = query_msg.query_doc_buffer.length + 16 + 12 + query_msg.collection_name.length + 1
 
         MessageWriter.writeMessage(c, query_msg)
-
-        p std_header.message_length
-        puts 'Query 1 (isMaster) sent'
 
         #Parse the reply message
         reply_msg = MessageParser.parse(c)
 
-        p reply_msg
-
         c.close
+
+        p reply_msg
     end
 end

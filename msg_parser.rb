@@ -15,9 +15,6 @@ class MessageParser
         std_header.response_to = fetch_uint32(c)
         std_header.op_code = fetch_uint32(c)
 
-        puts 'Op code being parsed is: '
-        p std_header.op_code
-
         if std_header.op_code == OP_QUERY
             query_msg = QueryMessage.new
             query_msg.header = std_header
@@ -60,11 +57,6 @@ class MessageParser
             remaining_data = c.recv remaining_len
             
             # bson_len = ((remaining_data.slice 0, 4).unpack 'V').first
-
-            # p remaining_len
-            # p bson_len
-            p remaining_data.length
-
             #bson_data = remaining_data.slice 4, bson_len
             # buffer = BSON::ByteBuffer.new(remaining_data.slice 0, bson_len)
             # buffer = BSON::ByteBuffer.new(remaining_data.slice 0, bson_len+4)  # Maybe we don't add the 4?

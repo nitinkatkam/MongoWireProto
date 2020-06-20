@@ -5,7 +5,7 @@ class SocketWrapper
 
 
     def send(data, flags)
-        File.open('socketCaptureSend.dat', 'a') { |file|
+        File.open('socketCaptureSend.dat', 'ab') { |file|
             file.write(data)
         }
         @socket.send(data, flags)
@@ -14,7 +14,7 @@ class SocketWrapper
     
     def recv(len)
         data = @socket.recv(len)
-        File.open('socketCaptureRecv.dat', 'a') { |file|
+        File.open('socketCaptureRecv.dat', 'ab') { |file|
             file.write(data)
         }
         data

@@ -13,7 +13,6 @@ class Server
         c = s.accept
         
         req_msg = MessageParser.parse(c)
-        p req_msg
 
         if req_msg.is_a?(QueryMessage)
             if req_msg.query_doc.has_key?(:isMaster)
@@ -45,7 +44,7 @@ class Server
                 reply_msg.reply_doc = doc
             
                 reply_msg.reply_doc_buffer = reply_msg.reply_doc.to_bson
-                std_header.message_length = reply_msg.reply_doc_buffer.length + 4 + 4
+                std_header.message_length = reply_msg.reply_doc_buffer.length + 16 + 20
 
                 MessageWriter.writeMessage(c, reply_msg)
             end
