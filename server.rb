@@ -1,10 +1,12 @@
 require './msg_query'
 require './msg_writer'
 
+
 class Server
     def initialize
         @counter_request_id = 0
     end
+
 
     def start
         s = TCPServer.open(27027)

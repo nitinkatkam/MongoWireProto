@@ -13,6 +13,12 @@ def read_to_char(stream, delim)
   buf
 end
 
+
 def fetch_uint32(stream)
   stream.recv(4).unpack('V').first
+end
+
+
+def fetch_uint64(stream)
+  stream.recv(8).unpack('Q').first
 end

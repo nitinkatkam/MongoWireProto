@@ -2,16 +2,19 @@ require 'socket'
 require './msg_query'
 require './msg_reply'
 
+
 class Client
     def initialize
         @counter_request_id = 0
     end
+
+
     def start
         c = TCPSocket.open('127.0.0.1', 27017)
 
         #Construct a query message
         std_header = StandardMessageHeader.new
-        std_header.op_code = 1
+        std_header.op_code = OP_QUERY
         std_header.response_to = 0 #req_msg.header.request_id
         std_header.request_id = @counter_request_id
         #Set the message length later
@@ -51,6 +54,7 @@ class Client
 
         MessageWriter.writeMessage(c, query_msg)
 
+        p std_header.message_length
         puts 'Query 1 (isMaster) sent'
 
         #Parse the reply message

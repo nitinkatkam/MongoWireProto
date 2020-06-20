@@ -4,6 +4,7 @@ require './msg_query'
 require './msg_reply'
 require './socket_wrapper'
 
+# Parses incoming messages
 class MessageParser
     def self.parse(c)
         c = SocketWrapper.new(c)
@@ -49,7 +50,7 @@ class MessageParser
             reply_msg.header = std_header  # 16 bytes
           
             reply_msg.flags = fetch_uint32(c)
-            reply_msg.cursor_id = 0 #fetch_uint32(c)  64 bits!!   TODO
+            reply_msg.cursor_id = fetch_uint64(c)  
             reply_msg.start_from = fetch_uint32(c)
             reply_msg.num_return = fetch_uint32(c)
 
@@ -58,10 +59,17 @@ class MessageParser
             remaining_len = std_header.message_length - read_so_far
             remaining_data = c.recv remaining_len
             
-            bson_len = ((remaining_data.slice 0, 4).unpack 'V').first
+            # bson_len = ((remaining_data.slice 0, 4).unpack 'V').first
+
+            # p remaining_len
+            # p bson_len
+            p remaining_data.length
+
             #bson_data = remaining_data.slice 4, bson_len
-            buffer = BSON::ByteBuffer.new(remaining_data.slice 0, bson_len)
+            # buffer = BSON::ByteBuffer.new(remaining_data.slice 0, bson_len)
             # buffer = BSON::ByteBuffer.new(remaining_data.slice 0, bson_len+4)  # Maybe we don't add the 4?
+            
+            buffer = BSON::ByteBuffer.new(remaining_data)
             reply_msg.reply_doc = BSON::Document.from_bson(buffer)
           
             retval = reply_msg

@@ -1,5 +1,6 @@
 require './msg_base'
 
+
 class ReplyMessage < BaseMessage
   def initialize(header = nil, flags = nil, cursor_id = nil, start_from = nil, num_return = nil, reply_doc = nil)
     @header = header

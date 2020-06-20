@@ -2,6 +2,7 @@ require './msg_query'
 require './msg_reply'
 require './socket_wrapper'
 
+# Writes messages to the network
 class MessageWriter
     def self.writeMessage(c, msg)
         c = SocketWrapper.new(c)
