@@ -11,45 +11,58 @@ class Server
     def start
         s = TCPServer.open(27027)
         c = s.accept
-        
-        req_msg = MessageParser.parse(c)
 
-        if req_msg.is_a?(QueryMessage)
-            if req_msg.query_doc.has_key?(:isMaster)
-                std_header = StandardMessageHeader.new
-                std_header.op_code = 1
-                std_header.response_to = req_msg.header.request_id
-                std_header.request_id = @counter_request_id
-                #Set the message length later
-                #std_header.message_length
-                @counter_request_id += 1
-            
-                reply_msg = ReplyMessage.new
-                reply_msg.header = std_header
-                reply_msg.flags = 0
-                reply_msg.cursor_id = 0
-                reply_msg.start_from = 0
-                reply_msg.num_return = 1
-            
-                #reply_msg.reply_doc
-                doc = BSON::Document.new
-                doc[:ismaster] = true
-                doc[:maxBsonObjectSize] = 16777216
-                    doc[:maxMessageSizeBytes] = 48000000
-                    doc[:maxWriteBatchSize] = 1000
-                    doc[:localTime] = Time.now #.strftime('%Y-%m-%dT%H:%M:%S.%L%z') #ISO8601 with milliseconds
-                    doc[:maxWireVersion] = 2
-                    doc[:minWireVersion] = 0
-                doc[:ok] = 1
-                reply_msg.reply_doc = doc
-            
-                reply_msg.reply_doc_buffer = reply_msg.reply_doc.to_bson
-                std_header.message_length = reply_msg.reply_doc_buffer.length + 16 + 20
+        loop do
+          req_msg = MessageParser.parse(c)
 
-                MessageWriter.writeMessage(c, reply_msg)
-            end
+          p req_msg
+
+          if req_msg.is_a?(QueryMessage)
+              std_header = StandardMessageHeader.new
+              std_header.op_code = OP_REPLY
+              std_header.response_to = req_msg.header.request_id
+              std_header.request_id = @counter_request_id
+              #Set the message length later
+              #std_header.message_length
+              @counter_request_id += 1
+
+              reply_msg = ReplyMessage.new
+              reply_msg.header = std_header
+              reply_msg.flags = 0
+              reply_msg.cursor_id = 0
+              reply_msg.start_from = 0
+              reply_msg.num_return = 1
+
+              doc = BSON::Document.new
+
+              if req_msg.query_doc.has_key?(:isMaster)
+                  doc[:ismaster] = true
+                  doc[:maxBsonObjectSize] = 16777216
+                  doc[:maxMessageSizeBytes] = 48000000
+                  doc[:maxWriteBatchSize] = 1000
+                  doc[:localTime] = Time.now #.strftime('%Y-%m-%dT%H:%M:%S.%L%z') #ISO8601 with milliseconds
+                  doc[:maxWireVersion] = 2
+                  doc[:minWireVersion] = 0
+                  doc[:ok] = 1
+              elsif req_msg.query_doc.has_key?(:whatsmyuri)
+                  sock_domain, remote_port, remote_hostname, remote_ip = c.peeraddr
+                  doc[:you] = "#{remote_ip}:#{remote_port}"
+                  doc[:ok] = 1
+              else
+                  puts 'Unrecognized query'
+                  break # TODO Handle this more elegantly
+              end
+
+              reply_msg.reply_doc = doc
+              reply_msg.reply_doc_buffer = reply_msg.reply_doc.to_bson
+              std_header.message_length = reply_msg.reply_doc_buffer.length + 16 + 20
+              MessageWriter.writeMessage(c, reply_msg)
+          else
+              puts 'Unrecognized message type'
+              break # TODO Handle this more elegantly
+          end
         end
-        
+
         c.close
         s.close        
     end
