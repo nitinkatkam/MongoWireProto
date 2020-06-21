@@ -1,6 +1,6 @@
 # WireProto
 
-This is a Ruby library to speak the MongoDB wire protocol.
+This repo demonstrates how to use Ruby to speak the MongoDB wire protocol.
 
 ## Getting Started
 
