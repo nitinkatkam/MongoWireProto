@@ -7,6 +7,8 @@ class MessageWriter
     def self.writeMessage(c, msg)
         c = SocketWrapper.new(c)
 
+        msg.calculate_message_size
+
         c.send([msg.header.message_length].pack('I'), 0)
         c.send([msg.header.request_id].pack('I'), 0)
         c.send([msg.header.response_to].pack('I'), 0)
@@ -18,11 +20,7 @@ class MessageWriter
             c.send([msg.start_from].pack('I'), 0)
             c.send([msg.num_return].pack('I'), 0)
             
-            bson_bytes = msg.reply_doc_buffer.get_bytes(msg.reply_doc_buffer.length)
-
-            p bson_bytes.length
-            p bson_bytes
-
+            bson_bytes = msg.doc_buffer.get_bytes(msg.doc_buffer.length)
             c.send(bson_bytes, 0)
         elsif msg.is_a?(QueryMessage)
             c.send([msg.flags].pack('I'), 0)
@@ -30,11 +28,7 @@ class MessageWriter
             c.send([msg.num_skip].pack('I'), 0)
             c.send([msg.num_return].pack('I'), 0)
 
-            bson_bytes = msg.query_doc_buffer.get_bytes(msg.query_doc_buffer.length)
-
-            p bson_bytes.length
-            p bson_bytes
-
+            bson_bytes = msg.doc_buffer.get_bytes(msg.doc_buffer.length)
             c.send(bson_bytes, 0)
         end
     end

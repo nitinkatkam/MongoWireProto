@@ -2,15 +2,27 @@ require './msg_base'
 
 
 class QueryMessage < BaseMessage
-  def initialize(header = nil, flags = nil, collection_name = nil, num_skip = nil, num_return = nil, query_doc = nil, field_selector = nil)
+  def initialize(header: nil, flags: 0, collection_name: nil, num_skip: 0, num_return: 1, doc: nil, field_selector: nil)
     @header = header
     @flags = flags
     @collection_name = collection_name
     @num_skip = num_skip
     @num_return = num_return
-    @query_doc = query_doc
+    @doc = doc
     @field_selector = field_selector
+
+    if @doc != nil
+      @doc_buffer = @doc.to_bson
+    end
   end
 
-  attr_accessor :flags, :collection_name, :num_skip, :num_return, :query_doc, :field_selector, :query_doc_buffer
+  def calculate_message_size
+    message_length = @doc_buffer.length + @header.my_size + 12 + (@collection_name.length + 1)
+    if @header != nil
+      @header.message_length = message_length
+    end
+    message_length
+  end
+
+  attr_accessor :flags, :collection_name, :num_skip, :num_return, :doc, :doc_buffer, :field_selector
 end

@@ -10,55 +10,179 @@ class Client
 
 
     def start
-        c = TCPSocket.open('127.0.0.1', 27017)
+        c = TCPSocket.open('127.0.0.1', 12121)
 
-        #Construct a query message
-        std_header = StandardMessageHeader.new
-        std_header.op_code = OP_QUERY
-        std_header.response_to = 0 #req_msg.header.request_id
-        std_header.request_id = @counter_request_id
-        #Set the message length later
-        #std_header.message_length
+        std_header = StandardMessageHeader.new request_id: @counter_request_id
         @counter_request_id += 1
-    
-        query_msg = QueryMessage.new
-        query_msg.header = std_header
-        query_msg.flags = 0
-        query_msg.collection_name = "admin.$cmd"
-        query_msg.num_skip = 0
-        query_msg.num_return = 1
-    
-        #query_msg.reply_doc
-        doc = BSON::Document.new
-        doc[:isMaster] = 1
-        doc[:hostInfo] = 'Nitins-MBP:27017'
-        doc[:client] = {
-            application: {
-                name: 'MongoDB Shell'
-            },
-            driver: {
-                name: 'MongoDB Internal Client',
-                version: '4.2.2'
-            },
-            os: {
-                type: 'Darwin',
-                name: 'Mac OS X',
-                architecture: 'x86_64',
-                version: '19.5.0'
-            }
-        }
-        query_msg.query_doc = doc
-    
-        query_msg.query_doc_buffer = query_msg.query_doc.to_bson
-        std_header.message_length = query_msg.query_doc_buffer.length + 16 + 12 + query_msg.collection_name.length + 1
 
+
+
+        #
+        # isMaster
+        #
+
+        doc = BSON::Document.new(
+            isMaster: 1,
+            hostInfo: 'Nitins-MBP:27017',
+            client: {
+                application: {
+                    name: 'MongoDB Shell'
+                },
+                driver: {
+                    name: 'MongoDB Internal Client',
+                    version: '4.2.2'
+                },
+                os: {
+                    type: 'Darwin',
+                    name: 'Mac OS X',
+                    architecture: 'x86_64',
+                    version: '19.5.0'
+                }
+            }
+        )
+        query_msg = QueryMessage.new(header: std_header, collection_name: "admin.$cmd", doc: doc)
         MessageWriter.writeMessage(c, query_msg)
 
-        #Parse the reply message
         reply_msg = MessageParser.parse(c)
+
+
+
+        #
+        # whatsmyuri
+        #
+
+        doc = BSON::Document.new(
+            whatsmyuri: 1
+        )
+        query_msg = QueryMessage.new(header: std_header, collection_name: "admin.$cmd", doc: doc)
+        MessageWriter.writeMessage(c, query_msg)
+
+        reply_msg = MessageParser.parse(c)
+
+
+
+        #
+        # buildInfo
+        #
+
+        doc = BSON::Document.new(
+            buildInfo: 1
+        )
+        query_msg = QueryMessage.new(header: std_header, collection_name: "admin.$cmd", doc: doc)
+        MessageWriter.writeMessage(c, query_msg)
+
+        reply_msg = MessageParser.parse(c)
+
+
+
+        #
+        # startupWarnings
+        #
+
+        doc = BSON::Document.new(
+            getLog: 'startupWarnings'
+        )
+        query_msg = QueryMessage.new(header: std_header, collection_name: "admin.$cmd", doc: doc)
+        MessageWriter.writeMessage(c, query_msg)
+
+        reply_msg = MessageParser.parse(c)
+
+
+
+        #
+        # getFreeMonitoringStatus
+        #
+
+        doc = BSON::Document.new(
+            getFreeMonitoringStatus: 1.0
+        )
+        query_msg = QueryMessage.new(header: std_header, collection_name: "admin.$cmd", doc: doc)
+        MessageWriter.writeMessage(c, query_msg)
+
+        reply_msg = MessageParser.parse(c)
+
+
+
+        #
+        # buildInfo
+        #
+
+        doc = BSON::Document.new(
+            buildInfo: 1.0
+        )
+        query_msg = QueryMessage.new(header: std_header, collection_name: "admin.$cmd", doc: doc)
+        MessageWriter.writeMessage(c, query_msg)
+
+        reply_msg = MessageParser.parse(c)
+
+
+
+        #
+        # buildInfo
+        #
+
+        doc = BSON::Document.new(
+            getCmdLineOpts: 1.0
+        )
+        query_msg = QueryMessage.new(header: std_header, collection_name: "admin.$cmd", doc: doc)
+        MessageWriter.writeMessage(c, query_msg)
+
+        reply_msg = MessageParser.parse(c)
+
+
+
+        #
+        # replSetGetStatus
+        #
+
+        doc = BSON::Document.new(
+            replSetGetStatus: 1.0,
+            forShell: 1.0
+        )
+        query_msg = QueryMessage.new(header: std_header, collection_name: "admin.$cmd", doc: doc)
+        MessageWriter.writeMessage(c, query_msg)
+
+        reply_msg = MessageParser.parse(c)
+
+
+
+        #
+        # listDatabases
+        #
+
+        doc = BSON::Document.new(
+            listDatabases: 1.0,
+            nameOnly: false
+        )
+        query_msg = QueryMessage.new(header: std_header, collection_name: "admin.$cmd", doc: doc)
+        MessageWriter.writeMessage(c, query_msg)
+
+        reply_msg = MessageParser.parse(c)
+
+
+
+        #
+        # listCollections
+        #
+
+        doc = BSON::Document.new(
+            listCollections: 1.0,
+            filter: {},
+            nameOnly: true,
+            authorizedCollections: true
+        )
+        query_msg = QueryMessage.new(header: std_header, collection_name: "admin.$cmd", doc: doc)
+        MessageWriter.writeMessage(c, query_msg)
+
+        reply_msg = MessageParser.parse(c)
+
+
+
+
+
 
         c.close
 
-        p reply_msg
+        p reply_msg.doc
     end
 end

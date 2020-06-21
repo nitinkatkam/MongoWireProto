@@ -15,9 +15,6 @@ class MessageParser
         std_header.response_to = fetch_uint32(c)
         std_header.op_code = fetch_uint32(c)
 
-        puts 'Op code being parsed is: '
-        p std_header.op_code
-
         if std_header.op_code == OP_QUERY
             query_msg = QueryMessage.new
             query_msg.header = std_header
@@ -33,16 +30,11 @@ class MessageParser
             remaining_data = c.recv remaining_len
             
             bson_len = ((remaining_data.slice 0, 4).unpack 'V').first
-            #bson_data = remaining_data.slice 4, bson_len
             buffer = BSON::ByteBuffer.new(remaining_data.slice(0, bson_len))
-            # buffer = BSON::ByteBuffer.new(remaining_data.slice 0, bson_len+4)  # Maybe we don't add the 4?
-            query_msg.query_doc = BSON::Document.from_bson(buffer)
+            query_msg.doc = BSON::Document.from_bson(buffer)
                         
             optional_selector_len = remaining_len - (4 + bson_len + 1)
             #TODO Get the optional field_selector
-          
-            #d = BSON::Document.from_bson(BSON::ByteBuffer.new(bson_data))
-            #d = BSON::Document.from_bson(bson_data, **{ mode: :bson })
           
             retval = query_msg
         elsif std_header.op_code == OP_REPLY
@@ -59,13 +51,8 @@ class MessageParser
             remaining_len = std_header.message_length - read_so_far
             remaining_data = c.recv remaining_len
             
-            # bson_len = ((remaining_data.slice 0, 4).unpack 'V').first
-            #bson_data = remaining_data.slice 4, bson_len
-            # buffer = BSON::ByteBuffer.new(remaining_data.slice 0, bson_len)
-            # buffer = BSON::ByteBuffer.new(remaining_data.slice 0, bson_len+4)  # Maybe we don't add the 4?
-            
             buffer = BSON::ByteBuffer.new(remaining_data)
-            reply_msg.reply_doc = BSON::Document.from_bson(buffer)
+            reply_msg.doc = BSON::Document.from_bson(buffer)
           
             retval = reply_msg
         else
