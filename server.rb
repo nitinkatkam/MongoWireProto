@@ -1,6 +1,7 @@
 require './msg_query'
 require './msg_writer'
-
+require 'json'
+require 'net/http'
 
 class Server
     def initialize
@@ -15,23 +16,43 @@ class Server
         loop do
           req_msg = MessageParser.parse(c)
 
-          p req_msg
+          puts 'Received request: '
+          p req_msg.doc
 
-          if req_msg.is_a?(QueryMessage)
+          if req_msg == nil  #Typing exit on the mongo shell brings us here
+              puts 'Received nil op code. Disconnecting.'
+              break
+          elsif req_msg.is_a?(QueryMessage)
               std_header = StandardMessageHeader.new(op_code: OP_REPLY, response_to: req_msg.header.request_id, request_id: @counter_request_id)
               @counter_request_id += 1
 
-              if req_msg.doc.has_key?(:isMaster)
-                  doc = BSON::Document.new(
-                      ismaster: true,
-                      maxBsonObjectSize: 16777216,
-                      maxMessageSizeBytes: 48000000,
-                      maxWriteBatchSize: 1000,
-                      localTime: Time.now,
-                      maxWireVersion: 2,
-                      minWireVersion: 0,
-                      ok: 1
-                  )
+              if req_msg.doc.has_key?(:isMaster) or req_msg.doc.has_key?(:ismaster)
+                  if req_msg.doc.has_key?(:hostInfo)
+                      doc = BSON::Document.new(
+                          ismaster: true,
+                          maxBsonObjectSize: 16777216,
+                          maxMessageSizeBytes: 48000000,
+                          maxWriteBatchSize: 1000,
+                          localTime: Time.now,
+                          maxWireVersion: 2,
+                          minWireVersion: 0,
+                          ok: 1
+                      )
+                  else
+                      doc = BSON::Document.new(
+                          ismaster: true,
+                          maxBsonObjectSize: 16777216,
+                          maxMessageSizeBytes: 48000000,
+                          maxWriteBatchSize: 1000,
+                          localTime: Time.now,
+                          logicalSessionTimeoutMinutes: 30,
+                          connectionId: 1,
+                          minWireVersion: 0,
+                          maxWireVersion: 8,
+                          readOnly: false,
+                          ok: 1
+                      )
+                  end
               elsif req_msg.doc.has_key?(:whatsmyuri)
                   sock_domain, remote_port, remote_hostname, remote_ip = c.peeraddr
                   doc = BSON::Document.new(
@@ -133,6 +154,26 @@ class Server
                       },
                       "ok": 1.0
                   )
+              elsif not req_msg.collection_name.include? '$cmd'
+                  msg = ''
+                  random_option = rand(2)
+
+                  case random_option
+                  when 0
+                      web_result = Net::HTTP.get(URI.parse('https://sv443.net/jokeapi/v2/joke/Any?blacklistFlags=nsfw,religious,racist,sexist&type=single'))
+                      web_json = JSON.parse(web_result)
+                      msg = web_json.has_key?('joke') ? web_json['joke'] : web_json['message']
+                  when 1
+                      web_result = Net::HTTP.get(URI.parse('https://api.chucknorris.io/jokes/random'))
+                      web_json = JSON.parse(web_result)
+                      msg = web_json['value']
+                  else
+
+                  end
+                  doc = BSON::Document.new ({
+                      'text': msg
+                  })
+                  #An empty object from BSON::Document.new() is different from how the server returns no results
               else
                   puts 'Unrecognized query'
                   p req_msg.doc
@@ -148,7 +189,7 @@ class Server
           end
         end
 
-        sleep 5
+        # sleep 5
 
         c.close
         s.close        

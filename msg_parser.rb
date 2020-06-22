@@ -49,12 +49,18 @@ class MessageParser
             read_so_far = 36
             
             remaining_len = std_header.message_length - read_so_far
-            remaining_data = c.recv remaining_len
-            
-            buffer = BSON::ByteBuffer.new(remaining_data)
-            reply_msg.doc = BSON::Document.from_bson(buffer)
+            if remaining_len > 0
+                remaining_data = c.recv remaining_len
+
+                buffer = BSON::ByteBuffer.new(remaining_data)
+                reply_msg.doc = BSON::Document.from_bson(buffer)
+            else
+                reply_msg.doc = BSON::Document.new
+            end
           
             retval = reply_msg
+        elsif std_header.op_code == nil
+            retval = nil
         else
             p std_header
             raise Exception.new 'Unrecognized op code: ' #+ std_header.op_code.to_a

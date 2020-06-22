@@ -10,7 +10,7 @@ class Client
 
 
     def start
-        c = TCPSocket.open('127.0.0.1', 12121)
+        c = TCPSocket.open('127.0.0.1', 27017)
 
         std_header = StandardMessageHeader.new request_id: @counter_request_id
         @counter_request_id += 1
@@ -39,6 +39,20 @@ class Client
                     version: '19.5.0'
                 }
             }
+        )
+        query_msg = QueryMessage.new(header: std_header, collection_name: "admin.$cmd", doc: doc)
+        MessageWriter.writeMessage(c, query_msg)
+
+        reply_msg = MessageParser.parse(c)
+
+
+
+        #
+        # isMaster
+        #
+
+        doc = BSON::Document.new(
+            ismaster: 1
         )
         query_msg = QueryMessage.new(header: std_header, collection_name: "admin.$cmd", doc: doc)
         MessageWriter.writeMessage(c, query_msg)
@@ -172,6 +186,18 @@ class Client
             authorizedCollections: true
         )
         query_msg = QueryMessage.new(header: std_header, collection_name: "admin.$cmd", doc: doc)
+        MessageWriter.writeMessage(c, query_msg)
+
+        reply_msg = MessageParser.parse(c)
+
+
+
+        #
+        # test.cars
+        #
+
+        doc = BSON::Document.new()
+        query_msg = QueryMessage.new(header: std_header, collection_name: "test.cars", doc: doc)
         MessageWriter.writeMessage(c, query_msg)
 
         reply_msg = MessageParser.parse(c)
