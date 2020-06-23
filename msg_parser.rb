@@ -2,6 +2,8 @@ require './util_bstream_reader'
 require './msg_types'
 require './msg_query'
 require './msg_reply'
+require './msg_message'
+require './msg_message_section'
 require './socket_wrapper'
 
 # Parses incoming messages
@@ -59,6 +61,31 @@ class MessageParser
             end
           
             retval = reply_msg
+        elsif std_header.op_code == OP_MSG
+            msg_msg = MessageMessage.new
+            msg_msg.header = std_header
+
+            msg_msg.flags = fetch_uint32(c)
+
+            first_section = MessageMessageSection.new
+            first_section.kind = fetch_byte(c)
+            if first_section.kind == 0
+                read_so_far = std_header.my_size + 4 + 1
+                remaining_len = std_header.message_length - read_so_far
+                remaining_data = c.recv remaining_len
+
+                # bson_len = fetch_uint32(c)
+                # bson_body = c.recv(bson_len+8)
+                # bson_doc_raw = bson_len.chr + bson_body
+
+                buffer = BSON::ByteBuffer.new(remaining_data)
+                first_section.doc = BSON::Document.from_bson(buffer)
+                msg_msg.sections = [].append(first_section)
+                retval = msg_msg
+            else
+                puts 'We cannot read kind 1 OP_MSG sections'
+                retval = nil
+            end
         elsif std_header.op_code == nil
             retval = nil
         else
