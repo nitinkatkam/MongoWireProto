@@ -16,6 +16,10 @@ class Server
         loop do
           req_msg = MessageParser.parse(c)
 
+          if req_msg == nil
+              puts 'Nil request message'
+              break
+          end
           puts 'Received request: '
           p req_msg.doc
 
