@@ -21,7 +21,15 @@ class Server
               break
           end
           puts 'Received request: '
-          p req_msg.doc
+
+
+          # Display the document included in the message
+          if req_msg.class.method_defined? 'doc'
+              p req_msg.doc
+          else
+              puts 'This message class does not have a .doc'
+          end
+
 
           if req_msg == nil  #Typing exit on the mongo shell brings us here
               puts 'Received nil op code. Disconnecting.'
