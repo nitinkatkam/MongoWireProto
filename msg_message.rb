@@ -2,7 +2,7 @@ require './msg_base'
 
 
 class MessageMessage < BaseMessage
-  def initialize(header: nil, flags: 0, kind: 0, sections: 0)
+  def initialize(header: nil, flags: 0, kind: 0, sections: [])
     @header = header
     @flags = flags
     @sections = sections
@@ -15,6 +15,8 @@ class MessageMessage < BaseMessage
     end
     message_length
   end
+
+  #TODO - Create a docs custom accessor method to return the section 0 document
 
   attr_accessor :flags, :sections
 end
