@@ -3,6 +3,10 @@ class MessageMessageSection
     @kind = kind
     @doc = doc
     @checksum = checksum
+
+    if @doc != nil
+      @doc_buffer = @doc.to_bson
+    end
   end
 
   def calculate_message_size
@@ -10,5 +14,5 @@ class MessageMessageSection
     message_length
   end
 
-  attr_accessor :kind, :doc, :checksum
+  attr_accessor :kind, :doc, :doc_buffer, :checksum
 end

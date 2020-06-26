@@ -13,6 +13,9 @@ class MessageParser
 
         std_header = StandardMessageHeader.new
         std_header.message_length = fetch_uint32(c)
+        if std_header.message_length == nil
+            return nil
+        end
         std_header.request_id = fetch_uint32(c)
         std_header.response_to = fetch_uint32(c)
         std_header.op_code = fetch_uint32(c)
