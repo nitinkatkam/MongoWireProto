@@ -30,6 +30,13 @@ class MessageWriter
 
             bson_bytes = msg.doc_buffer.get_bytes(msg.doc_buffer.length)
             c.send(bson_bytes, 0)
+        elsif msg.is_a?(MessageMessage)
+            c.send([msg.flags].pack('I'), 0)
+            msg.sections.each do |iter_section|
+                c.send([iter_section.kind].pack('C'), 0)
+                bson_bytes = iter_section.doc_buffer.get_bytes(iter_section.doc_buffer.length)
+                c.send(bson_bytes, 0)
+            end
         end
     end
 end

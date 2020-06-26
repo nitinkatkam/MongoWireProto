@@ -22,3 +22,10 @@ end
 def fetch_uint64(stream)
   stream.recv(8).unpack('Q').first
 end
+
+
+def fetch_byte(stream)
+  stream.recv(1).unpack('C').first
+end
+
+
