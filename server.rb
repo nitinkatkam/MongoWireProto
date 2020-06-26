@@ -4,13 +4,14 @@ require 'json'
 require 'net/http'
 
 class Server
-    def initialize
+    def initialize(port=27017)
         @counter_request_id = 0
+        @port = port
     end
 
 
     def start
-        s = TCPServer.open(27027)
+        s = TCPServer.open(@port)
         c = s.accept
 
         loop do
@@ -27,7 +28,11 @@ class Server
           if req_msg.class.method_defined? 'doc'
               p req_msg.doc
           else
-              puts 'This message class does not have a .doc'
+              if req_msg.class.method_defined? 'sections' and req_msg.sections.length > 0
+                  puts req_msg.sections[0].doc
+              else
+                puts 'This message class does not have a .doc'
+              end
           end
 
 

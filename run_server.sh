@@ -1,2 +1,2 @@
 #!/bin/bash
-ruby main.rb server
+ruby main.rb --mode server --port 27017

@@ -4,13 +4,14 @@ require './msg_reply'
 
 
 class Client
-    def initialize
+    def initialize(port=27017)
         @counter_request_id = 0
+        @port = port
     end
 
 
     def start
-        c = TCPSocket.open('127.0.0.1', 27017)
+        c = TCPSocket.open('127.0.0.1', @port)
 
         std_header = StandardMessageHeader.new request_id: @counter_request_id
         @counter_request_id += 1
@@ -204,11 +205,40 @@ class Client
 
 
 
+        #
+        # test.cars
+        #
+
+        doc = BSON::Document.new(
+            ismaster: true,
+            '$db': 'admin'
+        )
+        section = MessageMessageSection.new(doc: doc)
+        msg_msg = MessageMessage.new(header: std_header)
+        msg_msg.sections.append section
+        MessageWriter.writeMessage(c, msg_msg)
+
+        reply_msg = MessageParser.parse(c)
+
+
+
 
 
 
         c.close
 
-        p reply_msg.doc
+        # Display the document included in the message
+        if reply_msg == nil
+            print 'Reply length was nil'
+        elsif reply_msg.class.method_defined? 'doc'
+            p reply_msg.doc
+        else
+            if reply_msg.class.method_defined? 'sections' and reply_msg.sections.length > 0
+                puts reply_msg.sections[0].doc
+            else
+                puts 'This message class does not have a .doc'
+            end
+        end
+
     end
 end
