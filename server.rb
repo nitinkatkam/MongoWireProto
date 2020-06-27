@@ -49,25 +49,25 @@ class Server
                           ismaster: true,
                           maxBsonObjectSize: 16777216,
                           maxMessageSizeBytes: 48000000,
-                          maxWriteBatchSize: 1000,
+                          maxWriteBatchSize: 100000,
                           localTime: Time.now,
                           maxWireVersion: 2,
                           minWireVersion: 0,
-                          ok: 1
+                          ok: 1.0
                       )
                   else
                       doc = BSON::Document.new(
                           ismaster: true,
                           maxBsonObjectSize: 16777216,
                           maxMessageSizeBytes: 48000000,
-                          maxWriteBatchSize: 1000,
-                          localTime: Time.now,
+                          maxWriteBatchSize: 100000,
+                          localTime: Time.now.utc,
                           logicalSessionTimeoutMinutes: 30,
                           connectionId: 1,
                           minWireVersion: 0,
                           maxWireVersion: 8,
                           readOnly: false,
-                          ok: 1
+                          ok: 1.0
                       )
                   end
               elsif req_msg.doc.has_key?(:whatsmyuri)
@@ -199,6 +199,28 @@ class Server
 
               reply_msg = ReplyMessage.new(header: std_header, doc: doc)
               MessageWriter.writeMessage(c, reply_msg)
+          elsif req_msg.is_a?(MessageMessage)
+              std_header = StandardMessageHeader.new(op_code: OP_MSG, response_to: req_msg.header.request_id, request_id: @counter_request_id)
+              @counter_request_id += 1
+
+              doc = BSON::Document.new(
+                  ismaster: true,
+                  maxBsonObjectSize: 16777216,
+                  maxMessageSizeBytes: 48000000,
+                  maxWriteBatchSize: 100000,
+                  localTime: Time.now.utc,
+                  logicalSessionTimeoutMinutes: 30,
+                  connectionId: 1,
+                  minWireVersion: 0,
+                  maxWireVersion: 8,
+                  readOnly: false,
+                  ok: 1.0
+              )
+
+              section = MessageMessageSection.new(doc: doc)
+              msg_msg = MessageMessage.new(header: std_header)
+              msg_msg.sections.append section
+              MessageWriter.writeMessage(c, msg_msg)
           else
               puts 'Unrecognized message type'
               p req_msg

@@ -21,10 +21,15 @@ class QueryMessage < BaseMessage
   end
 
   def calculate_message_size
+    if @doc_buffer == nil and @doc_buffer != nil
+      @doc_buffer = @doc.to_bson
+    end
+
     message_length = @doc_buffer.length + @header.my_size + 12 + (@collection_name.length + 1)
     if @header != nil
       @header.message_length = message_length
     end
+
     message_length
   end
 

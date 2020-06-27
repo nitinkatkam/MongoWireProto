@@ -21,7 +21,10 @@ class MessageParser
         std_header.response_to = fetch_uint32(c)
         std_header.op_code = fetch_uint32(c)
 
+        $logger.info(std_header)
+
         if std_header.op_code == OP_QUERY
+            $logger.info('Reading an OP_QUERY')
             query_msg = QueryMessage.new
             query_msg.header = std_header
           
@@ -41,9 +44,11 @@ class MessageParser
                         
             optional_selector_len = remaining_len - (4 + bson_len + 1)
             #TODO Get the optional field_selector
-          
+
+            $logger.info(query_msg.doc)
             retval = query_msg
         elsif std_header.op_code == OP_REPLY
+            $logger.info('Reading an OP_REPLY')
             reply_msg = ReplyMessage.new
             reply_msg.header = std_header  # 16 bytes
           
@@ -63,9 +68,11 @@ class MessageParser
             else
                 reply_msg.doc = BSON::Document.new
             end
-          
+
+            $logger.info(reply_msg.doc)
             retval = reply_msg
         elsif std_header.op_code == OP_MSG
+            $logger.info('Reading an OP_MSG')
             msg_msg = MessageMessage.new
             msg_msg.header = std_header
 
@@ -85,14 +92,19 @@ class MessageParser
                 buffer = BSON::ByteBuffer.new(remaining_data)
                 first_section.doc = BSON::Document.from_bson(buffer)
                 msg_msg.sections = [].append(first_section)
+
+                $logger.info(msg_msg.sections[0].doc)
                 retval = msg_msg
             else
                 puts 'We cannot read kind 1 OP_MSG sections'
                 retval = nil
             end
         elsif std_header.op_code == nil
+            $logger.error('No op code')
             retval = nil
         else
+            $logger.error('Unrecognized op code')
+            $logger.error(std_header)
             p std_header
             raise Exception.new 'Unrecognized op code: ' #+ std_header.op_code.to_a
         end

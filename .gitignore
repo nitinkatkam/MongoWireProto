@@ -1,3 +1,4 @@
 .vscode/launch.json
 *socketCapture*.dat
 .idea/*
+/wireproto.log

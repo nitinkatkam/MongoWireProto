@@ -17,6 +17,7 @@ class MessageWriter
         c.send([msg.header.op_code].pack('I'), 0)
 
         if msg.is_a?(ReplyMessage)
+            $logger.info('Writing an OP_REPLY')
             $logger.info(msg.doc)
             c.send([msg.flags].pack('I'), 0)
             c.send([msg.cursor_id].pack('Q'), 0)
@@ -26,6 +27,7 @@ class MessageWriter
             bson_bytes = msg.doc_buffer.get_bytes(msg.doc_buffer.length)
             c.send(bson_bytes, 0)
         elsif msg.is_a?(QueryMessage)
+            $logger.info('Writing an OP_QUERY')
             $logger.info(msg.doc)
             c.send([msg.flags].pack('I'), 0)
             c.send(msg.collection_name + "\0", 0)
@@ -35,6 +37,7 @@ class MessageWriter
             bson_bytes = msg.doc_buffer.get_bytes(msg.doc_buffer.length)
             c.send(bson_bytes, 0)
         elsif msg.is_a?(MessageMessage)
+            $logger.info('Writing an OP_MSG')
             $logger.info(msg.sections[0].doc)
             c.send([msg.flags].pack('I'), 0)
             msg.sections.each do |iter_section|
