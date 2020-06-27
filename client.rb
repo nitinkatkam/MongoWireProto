@@ -197,16 +197,16 @@ class Client
         # test.cars
         #
 
-        doc = BSON::Document.new()
-        query_msg = QueryMessage.new(header: std_header, collection_name: "test.cars", doc: doc)
-        MessageWriter.writeMessage(c, query_msg)
-
-        reply_msg = MessageParser.parse(c)
+        # doc = BSON::Document.new()
+        # query_msg = QueryMessage.new(header: std_header, collection_name: "test.cars", doc: doc)
+        # MessageWriter.writeMessage(c, query_msg)
+        #
+        # reply_msg = MessageParser.parse(c)
 
 
 
         #
-        # test.cars
+        # OP_MSG {ismaster: true, $db: admin}
         #
 
         doc = BSON::Document.new(
