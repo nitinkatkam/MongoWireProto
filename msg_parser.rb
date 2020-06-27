@@ -9,6 +9,7 @@ require './socket_wrapper'
 # Parses incoming messages
 class MessageParser
     def self.parse(c)
+        $logger.debug('METHOD_START:MessageParser.parse')
         c = SocketWrapper.new(c)
 
         std_header = StandardMessageHeader.new
@@ -96,6 +97,7 @@ class MessageParser
             raise Exception.new 'Unrecognized op code: ' #+ std_header.op_code.to_a
         end
 
+        $logger.debug('METHOD_RETRN:MessageParser.parse')
         retval
     end
 end
