@@ -21,7 +21,7 @@ class QueryMessage < BaseMessage
   end
 
   def calculate_message_size
-    if @doc_buffer == nil and @doc_buffer != nil
+    if @doc_buffer == nil and @doc != nil
       @doc_buffer = @doc.to_bson
     end
 

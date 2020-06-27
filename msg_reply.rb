@@ -20,6 +20,10 @@ class ReplyMessage < BaseMessage
   end
 
   def calculate_message_size
+    if @doc_buffer == nil and @doc != nil
+      @doc_buffer = @doc.to_bson
+    end
+
     message_length = @doc_buffer.length + @header.my_size + 20
     if @header != nil
       @header.message_length = message_length

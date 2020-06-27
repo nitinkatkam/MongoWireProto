@@ -18,9 +18,16 @@ class Relay
 
     loop do
       req_msg = MessageParser.parse(c)
+      if req_msg == nil
+        break
+      end
       MessageWriter.writeMessage(r, req_msg)
       resp_msg = MessageParser.parse(r)
       MessageWriter.writeMessage(c, resp_msg)
     end
+
+    r.close
+    c.close
+    s.close
   end
 end

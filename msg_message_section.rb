@@ -10,6 +10,10 @@ class MessageMessageSection
   end
 
   def calculate_message_size
+    if @doc_buffer == nil and @doc != nil
+      @doc_buffer = @doc.to_bson
+    end
+
     message_length = 1 + @doc_buffer.length
     message_length
   end
