@@ -1,4 +1,5 @@
 require './msg_base'
+require './msg_types'
 
 
 class QueryMessage < BaseMessage
@@ -11,6 +12,9 @@ class QueryMessage < BaseMessage
     @doc = doc
     @field_selector = field_selector
 
+    if @header != nil
+      @header.op_code = OP_QUERY
+    end
     if @doc != nil
       @doc_buffer = @doc.to_bson
     end

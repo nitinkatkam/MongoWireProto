@@ -1,4 +1,5 @@
 require './msg_base'
+require './msg_types'
 
 
 class ReplyMessage < BaseMessage
@@ -10,6 +11,9 @@ class ReplyMessage < BaseMessage
     @num_return = num_return
     @doc = doc
 
+    if @header != nil
+      @header.op_code = OP_REPLY
+    end
     if @doc != nil
       @doc_buffer = @doc.to_bson
     end
