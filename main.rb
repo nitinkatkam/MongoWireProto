@@ -14,10 +14,10 @@ require 'optparse'
 def start_in_mode(cmdline_params)
     case cmdline_params[:mode]
     when 'server'
-        s = Server.new cmdline_params[:port]
+        s = cmdline_params.has_key?('port') ? Server.new(cmdline_params[:port]) : Server.new
         s.start
     when 'client'
-        c = Client.new cmdline_params[:port]
+        c = cmdline_params.has_key?('port') ? Client.new(cmdline_params[:port]) : Client.new
         c.start
     end
 
