@@ -10,7 +10,7 @@ class MessageMessageSection
   end
 
   def calculate_message_size
-    message_length = -1
+    message_length = 1 + @doc_buffer.length
     message_length
   end
 
