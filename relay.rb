@@ -4,9 +4,11 @@ require 'json'
 require 'net/http'
 
 class Relay
-  def initialize(port=27017)
+  def initialize(port=27017, relay_host='127.0.0.1', relay_port=27017)
     @counter_request_id = 0
     @port = port
+    @relay_host = relay_host
+    @relay_port = relay_port
   end
 
 
@@ -14,7 +16,7 @@ class Relay
     s = TCPServer.open(@port)
     c = s.accept
 
-    r = TCPSocket.open('127.0.0.1', 27017)
+    r = TCPSocket.open(@relay_host, @relay_port)
 
     loop do
       req_msg = MessageParser.parse(c)

@@ -22,7 +22,7 @@ def start_in_mode(cmdline_params)
         c = cmdline_params.has_key?(:port) ? Client.new(cmdline_params[:port]) : Client.new
         c.start
     when 'relay'
-        r = cmdline_params.has_key?(:port) ? Relay.new(cmdline_params[:port]) : Relay.new
+        r = cmdline_params.has_key?(:port) and cmdline_params.has_key?(:relay_host) and cmdline_params.has_key?(:relay_port) ? Relay.new(cmdline_params[:port], cmdline_params[:relay_host], cmdline_params[:relay_port]) : Relay.new
         r.start
     else
         puts 'Invalid start mode. Start with: --mode {client|server}'
@@ -58,6 +58,16 @@ def main
         iter_cmdline.on('--port PORT', 'Port number to connect/listen') do |port_num|
             cmdline_params[:port] = port_num
             logmsg_arr.append "CMDLINE: Setting port number to : #{port_num}"
+        end
+
+        iter_cmdline.on('--relay_host HOST', 'Host to connect to') do |relay_host|
+            cmdline_params[:relay_host] = relay_host
+            logmsg_arr.append "CMDLINE: Setting relay host to: #{relay_host}"
+        end
+
+        iter_cmdline.on('--relay_port PORT', 'Port number to connect/listen') do |relay_port|
+            cmdline_params[:relay_port] = relay_port
+            logmsg_arr.append "CMDLINE: Setting relay port number to : #{relay_port}"
         end
 
         iter_cmdline.on('--logfile LOGFILE', 'Name of the log file') do |logfile|
