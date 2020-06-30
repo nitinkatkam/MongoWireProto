@@ -22,7 +22,7 @@ def start_in_mode(cmdline_params)
         c = cmdline_params.has_key?(:port) ? Client.new(cmdline_params[:port]) : Client.new
         c.start
     when 'relay'
-        r = cmdline_params.has_key?(:port) and cmdline_params.has_key?(:relay_host) and cmdline_params.has_key?(:relay_port) ? Relay.new(cmdline_params[:port], cmdline_params[:relay_host], cmdline_params[:relay_port]) : Relay.new
+        r = (cmdline_params.has_key?(:port) and cmdline_params.has_key?(:relay_host) and cmdline_params.has_key?(:relay_port)) ? Relay.new(cmdline_params[:port], cmdline_params[:relay_host], cmdline_params[:relay_port]) : Relay.new
         r.start
     else
         puts 'Invalid start mode. Start with: --mode {client|server}'
