@@ -5,6 +5,7 @@ require './msg_reply'
 require './msg_message'
 require './msg_message_section'
 require './socket_wrapper'
+require 'zlib'
 
 # Parses incoming messages
 class MessageParser
@@ -15,6 +16,7 @@ class MessageParser
         std_header = StandardMessageHeader.new
         std_header.message_length = fetch_uint32(c)
         if std_header.message_length == nil
+            $logger.info('Attempted to parse nil length data')
             return nil
         end
         std_header.request_id = fetch_uint32(c)
@@ -37,7 +39,8 @@ class MessageParser
             
             remaining_len = std_header.message_length - read_so_far
             remaining_data = c.recv remaining_len
-            
+
+            #TODO: Separate the last 4 bits of the message for CRC32 (used for non-TLS/SSL traffic)
             bson_len = ((remaining_data.slice 0, 4).unpack 'V').first
             buffer = BSON::ByteBuffer.new(remaining_data.slice(0, bson_len))
             query_msg.doc = BSON::Document.from_bson(buffer)
@@ -85,9 +88,16 @@ class MessageParser
                 remaining_len = std_header.message_length - read_so_far
                 remaining_data = c.recv remaining_len
 
+                # $logger.info("Read So Far: #{read_so_far} ; Remaining: #{remaining_len} ; BSON length: #{remaining_data[0]}")
+
                 # bson_len = fetch_uint32(c)
                 # bson_body = c.recv(bson_len+8)
                 # bson_doc_raw = bson_len.chr + bson_body
+
+                if msg_msg.flags == 1   #TODO: Do an AND with 1
+                    crc = remaining_data.slice(remaining_data.length - 4, remaining_data.length)
+                    $logger.debug("CRC: #{crc}")
+                end
 
                 buffer = BSON::ByteBuffer.new(remaining_data)
                 first_section.doc = BSON::Document.from_bson(buffer)
