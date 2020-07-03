@@ -3,7 +3,7 @@ require './msg_types'
 
 
 class MessageMessage < BaseMessage
-  def initialize(header: nil, flags: 0, kind: 0, sections: [])
+  def initialize(header: nil, flags: 1, kind: 0, sections: [])
     @header = header
     @flags = flags
     @sections = sections
@@ -20,7 +20,9 @@ class MessageMessage < BaseMessage
       message_length += iter_section.calculate_message_size
     end
 
-    if @header != nil
+    message_length += 4  #For CRC, assuming non-TLS
+
+        if @header != nil
       @header.message_length = message_length
     end
     message_length
