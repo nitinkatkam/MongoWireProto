@@ -11,7 +11,7 @@ require './client'
 require './relay'
 require 'optparse'
 require 'logger'
-
+require './server_info'
 
 def start_in_mode(cmdline_params)
     case cmdline_params[:mode]
@@ -24,6 +24,11 @@ def start_in_mode(cmdline_params)
     when 'relay'
         r = (cmdline_params.has_key?(:port) and cmdline_params.has_key?(:relay_host) and cmdline_params.has_key?(:relay_port)) ? Relay.new(cmdline_params[:port], cmdline_params[:relay_host], cmdline_params[:relay_port]) : Relay.new
         r.start
+    when 'info'
+        port_num = cmdline_params.has_key?(:port) ? cmdline_params[:port] : 27017
+        hoat_name = cmdline_params.has_key?(:host) ? cmdline_params[:host] : 'localhost'
+        si = ServerInfo.new(host: hoat_name, port: port_num)
+        si.start
     else
         puts 'Invalid start mode. Start with: --mode {client|server}'
     end

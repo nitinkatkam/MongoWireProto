@@ -1,4 +1,4 @@
-.vscode/launch.json
-*socketCapture*.dat
-.idea/*
-/wireproto.log
+wireproto/.vscode/launch.json
+wireproto/*socketCapture*.dat
+wireproto/.idea/*
+wireproto/wireproto.log

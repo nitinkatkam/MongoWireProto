@@ -11,7 +11,7 @@ class SocketWrapper
         @socket.send(data, flags)
     end
 
-    
+
     def recv(len)
         data = @socket.recv(len)
         File.open('socketCaptureRecv.dat', 'ab') { |file|
@@ -19,4 +19,5 @@ class SocketWrapper
         }
         data
     end
+
 end

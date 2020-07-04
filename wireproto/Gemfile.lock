@@ -7,6 +7,9 @@ GEM
     debase (0.2.4.1)
       debase-ruby_core_source (>= 0.10.2)
     debase-ruby_core_source (0.10.9)
+    digest-crc (0.5.1)
+    mongo (2.12.1)
+      bson (>= 4.8.2, < 5.0.0)
     rake (13.0.1)
     readapt (1.0.0)
       backport (~> 1.1)
@@ -22,6 +25,8 @@ DEPENDENCIES
   bindata
   bson
   debase
+  digest-crc
+  mongo
   readapt
   ruby-debug-ide
 
